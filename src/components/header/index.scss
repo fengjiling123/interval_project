@@ -1,11 +1,13 @@
+@import '../../ultils/style.scss';
 .header-container {
-    height: 60px;
+    height: $header_height;
     width: 100%;
-    background: black;
+    background: $header_color;
     color: white;
-    line-height: 60px;
+    line-height: $header_height;
     padding-left: 20px;
+    font-size: 16px;
     position: fixed;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
 }

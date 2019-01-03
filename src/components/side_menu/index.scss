@@ -1,7 +1,9 @@
-.side-menu-container{
-    background: black;
-    color:white;
+@import '../../ultils/style.scss';
+.side-menu-container {
+    background: $header_color;
     position: fixed;
     height: 100%;
+    width: $side_menu_width;
     overflow: auto;
+    box-sizing: border-box;
 }

@@ -1,7 +1,7 @@
-.bottom-container{
-    padding-top: 60px;
-    .pages-container{
-       
-        padding-left: 80px
+@import '../ultils//style.scss';
+.bottom-container {
+    padding-top: $header_height;
+    .pages-container {
+        padding-left: $side_menu_width;
     }
 }
