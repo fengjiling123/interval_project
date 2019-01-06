@@ -1,6 +1,7 @@
 @import '../ultils//style.scss';
 .bottom-container {
     padding-top: $header_height;
+    z-index: 0;
     .pages-container {
         padding-left: $side_menu_width;
     }

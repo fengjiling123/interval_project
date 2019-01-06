@@ -12,6 +12,8 @@ import Header from '../components/header';
 import SideMenu from '../components/side_menu';
 import Task from './task';
 import Log from './log';
+import Project from './project';
+import Users from './users';
 import './index.scss';
 
 class App extends React.Component {
@@ -20,17 +22,21 @@ class App extends React.Component {
         this.state = {
         }
     }
-    render () {
+    render() {
         return <div>
             <Header />
             <div className="bottom-container">
                 <SideMenu />
                 <div className="pages-container">
-                    <Switch>
-                        <Route path="/taskList" component={Task} />
-                        <Route path="/logList" component={Log} />
-                        <Route path="*" component={Task} />
-                    </Switch>
+                    <div style={{ padding: '20px' }}>
+                        <Switch>
+                            <Route path="/taskList" component={Task} />
+                            <Route path="/logList" component={Log} />
+                            <Route path="/project" component={Project} />
+                            <Route path="/users" component={Users} />
+                            <Route path="*" component={Task} />
+                        </Switch>
+                    </div>
                 </div>
             </div>
         </div>
