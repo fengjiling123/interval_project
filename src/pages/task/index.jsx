@@ -1,6 +1,8 @@
 import React from 'react';
 import http from '../../ultils/http';
+import history from '../../ultils/history';
 import { Table, Button } from 'antd';
+import { withRouter } from 'react-router-dom';
 import AddTaskModal from '../../components/addTaskModal';
 import './index.scss';
 
@@ -27,8 +29,7 @@ class Task extends React.Component {
 			{
 				title: '操作',
 				key: 'action',
-				width: 100,
-				align: 'center',
+				width: 150,
 				render: (text, record) => (
 					<div className="action-container">
 						{record.jobStatus !== 'NORMAL' &&
@@ -37,8 +38,17 @@ class Task extends React.Component {
 								onClick={this.editTask.bind(this, record)}>
 								编辑
 						 </Button>}
+						<Button size="small" onClick={() => {
+							let path = {
+								pathname: '/logList',
+								state: record.id,
+							}
+							this.props.history.push(path);
+						}}>
+							日志
+						 </Button>
 						{record.jobStatus === 'NORMAL' && <Button size="small" onClick={this.pauseTask.bind(this, record)}>暂停</Button>}
-						{/* {record.jobStatus === 'PAUSED' && <Button size="small">启动</Button>} */}
+						{record.jobStatus === 'PAUSED' && <Button size="small" onClick={this.resumeTask.bind(this, record)}>启动</Button>}
 						{record.jobStatus !== 'NORMAL' && <Button type="danger" size="small" onClick={this.deleteTask.bind(this, record)}>删除</Button>}
 					</div>
 				),
@@ -82,6 +92,13 @@ class Task extends React.Component {
 
 	pauseTask (record) {
 		http.post('/tms/job/pause', { id: record.id })
+			.then(res => {
+				this.getTaskList();
+			}).catch(err => console.error(err));
+	}
+
+	resumeTask (record) {
+		http.post('/tms/job/resume', { id: record.id })
 			.then(res => {
 				this.getTaskList();
 			}).catch(err => console.error(err));

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import http from '../../ultils/http';
 import { Table, Button, Select } from 'antd';
+import { withRouter } from 'react-router-dom';
 
 const Option = Select.Option;
 
@@ -43,7 +44,13 @@ class Log extends React.Component {
 	}
 
 	componentDidMount () {
-		this.getLogList();
+		if (this.props.location.state) {
+			this.setState({ jobId: this.props.location.state },()=>{
+				this.getLogList();
+			});
+		}else{
+			this.getLogList();
+		}
 		this.getTaskList();
 	}
 
@@ -129,4 +136,4 @@ Log.propTypes = {
 
 }
 
-export default Log;
+export default withRouter(Log);
