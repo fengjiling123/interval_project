@@ -5,16 +5,24 @@ import history from './history';
 
 export const baseURL = '';
 
-function getToken(name = 'token') {
+function getToken (name = 'token') {
   return window.localStorage.getItem(name)
 }
 
 let instance = axios.create({
   baseURL,
-  transformRequest: [data => JSON.stringify(data)],
+  // transformRequest: [data => JSON.stringify(data)],
+  transformRequest: [function (data) {
+    let ret = '';
+    for (let it in data) {
+      ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&';
+    }
+    return ret;
+  }],
   transformResponse: [data => data],
   headers: {
-    'Content-Type': 'application/json;charset=UTF-8',
+    // 'Content-Type': 'application/json;charset=UTF-8',
+    'Content-Type': 'application/x-www-form-urlencoded',
     'Authorization': getToken(),
   },
   paramsSerializer: function (params) {
@@ -35,7 +43,7 @@ instance.interceptors.request.use(config => {
 instance.interceptors.response.use(
   res => {
     if (res.config.responseType === 'blob') return res;
-    if (res.data.code == 200) {
+    if (res.data && res.data.code == 200) {
       return res;
     } else {
       if (res.data.code == 210) {
