@@ -1,0 +1,21 @@
+.add-project-modal {
+    .row {
+        display: flex;
+        margin-bottom: 16px;
+        align-items: center;
+        &>span {
+            width: 70px;
+            display: inline-block;
+            flex-shrink: 0;
+            text-align: right;
+            margin-right: 8px;
+        }
+        &.requried {
+            &>span::before {
+                content: "*";
+                color: red;
+                margin-left: 3px;
+            }
+        }
+    }
+}
