@@ -15,25 +15,30 @@ class AddUserModal extends React.Component {
 			user: '',
 			password: '',
 			appName: '',
-			email: ''
+			email: '',
+			loading: false
 		}
 	}
 
 	componentDidMount () {
+		this.setState({ loading: true })
 		http.post('/tms/jobgroup/pageList')
 			.then(res => {
 				if (!res.data || res.data.length === 0) {
 					message.error('请先创建项目');
 					return;
 				}
-				this.setState({ projectList: res.data });
+				this.setState({
+					projectList: res.data,
+					loading: false
+				});
 			}).catch(err => {
 				console.error(err);
+				this.setState({ loading: false });
 			})
 	}
 
 	changeValue (valueType, value) {
-		console.log(valueType, value);
 		this.setState({ [valueType]: value });
 	}
 
@@ -54,7 +59,7 @@ class AddUserModal extends React.Component {
 
 	render () {
 		const { closeModal } = this.props;
-		const { projectList, user, password, appName, email } = this.state;
+		const { projectList, user, password, appName, email, loading } = this.state;
 		return <Modal
 			title="创建账号"
 			visible
@@ -79,8 +84,12 @@ class AddUserModal extends React.Component {
 			<div className="row requried" >
 				<span>项目名</span>
 				<Select onChange={this.changeValue.bind(this, 'appName')} style={{ flex: 1 }} placeholder='请选择项目'>
-					{projectList &&
-						projectList.map(item => (<Option value={item.appName}>{item.appName}</Option>))
+					{projectList ?
+						(loading ?
+							<Option value='loading' disabled>加载中...</Option> :
+							projectList.map(item => (<Option value={item.appName} key={item}>{item.appName}</Option>))
+						)
+						: <Option value='empty' disabled>没有数据</Option>
 					}
 				</Select>
 			</div>
