@@ -46,10 +46,11 @@ instance.interceptors.response.use(
     if (res.data && res.data.code == 200) {
       return res;
     } else {
-      if (res.data.code == 210) {
+      if (res.data.code == 210 || res.data.msg === '管理员才能查看项目！' || res.data.msg === '该账号未绑定项目！') {
         history.push("/login");
+      } else {
+        message.error(res.data.msg);
       }
-      message.error(res.data.msg);
       return Promise.reject(res.data);
     }
   },

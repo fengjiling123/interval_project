@@ -1,8 +1,10 @@
 import React from 'react';
 import http from '../../ultils/http';
-import { Table, Button } from 'antd';
+import { Table, Button, Modal } from 'antd';
 import AddUserModal from '../../components/addUserModal';
 import './index.scss';
+
+const confirm = Modal.confirm;
 
 class Users extends React.Component {
   constructor(props) {
@@ -54,13 +56,18 @@ class Users extends React.Component {
   }
 
   deleteUser (record) {
-    this.setState({ loading: true });
-    const params = { user: record.username };
-    http.post('/tms/user/delete', params)
-      .then(res => {
-        this.getUserList();
-      })
-      .catch(err => console.error(err));
+    confirm({
+      title: '确认删除所选用户',
+      okType: 'danger',
+      onOk: () => {
+        const params = { user: record.username };
+        return http.post('/tms/user/delete', params)
+          .then(res => {
+            this.getUserList();
+          })
+          .catch(err => console.error(err));
+      }
+    });
   }
 
   render () {
@@ -77,6 +84,5 @@ class Users extends React.Component {
     </div>
   }
 }
-
 
 export default Users;

@@ -1,0 +1,14 @@
+.log-detail-modal{
+  .row {
+    display: flex;
+    margin-bottom: 16px;
+    align-items: center;
+    &>span {
+        width: 80px;
+        display: inline-block;
+        flex-shrink: 0;
+        text-align: right;
+        margin-right: 8px;
+    }
+}
+}

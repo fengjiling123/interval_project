@@ -7,8 +7,6 @@ import {
 import { LocaleProvider } from 'antd';
 import zh_CN from 'antd/lib/locale-provider/zh_CN';
 
-import './App.scss';
-
 import history from './ultils/history';
 import Login from './pages/login';
 import IndexPage from './pages';

@@ -3,16 +3,12 @@ import LoginImage from '../../images/time2.png';
 import { Form, Input, Button, Icon } from 'antd';
 import http from '../../ultils/http';
 import './index.scss';
+
 const FormItem = Form.Item;
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-    }
-  }
-
-  componentDidMount () {
-
   }
 
   handleSubmit (e) {
@@ -69,6 +65,5 @@ class Login extends React.Component {
     </div>
   }
 }
-
 
 export default Form.create()(Login);

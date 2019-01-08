@@ -9,7 +9,18 @@ import './index.scss';
 class SideMenu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
+  }
+
+  isShow (menu) {
+    let LoginUser = window.localStorage.getItem('name');
+    let adminMenu = ['用户管理', '项目管理'];
+    if (LoginUser === 'admin' && adminMenu.indexOf(menu.name) !== -1) {
+      window.location.pathname === '/' && history.push('/project');
+      return true;
+
+    }
+    if (LoginUser !== 'admin' && adminMenu.indexOf(menu.name) === -1) {
+      return true;
     }
   }
 
@@ -22,6 +33,7 @@ class SideMenu extends React.Component {
         onSelect={({ item, key }) => { history.push(key); }}
       >
         {menuData.map(item => (
+          this.isShow(item) &&
           <Menu.Item key={item.path} >
             <Icon type={item.icon} />
             {item.name}
@@ -30,11 +42,6 @@ class SideMenu extends React.Component {
       </Menu>
     </div>
   }
-
-}
-
-SideMenu.propTypes = {
-
 }
 
 export default withRouter(SideMenu);

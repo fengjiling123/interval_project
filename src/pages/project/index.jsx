@@ -1,9 +1,10 @@
 import React from 'react';
 import http from '../../ultils/http';
-import { Table, Button } from 'antd';
+import { Table, Button, Modal } from 'antd';
 import AddProjectModal from '../../components/addProjectModal';
-
 import './index.scss';
+
+const confirm = Modal.confirm;
 
 class Project extends React.Component {
   constructor(props) {
@@ -61,11 +62,17 @@ class Project extends React.Component {
   }
 
   deleteProject (appName) {
-    http.post('/tms/jobgroup/delete', { appName })
-      .then(res => {
-        this.getProjectList();
-      })
-      .catch(err => console.error(err));
+    confirm({
+      title: '确认删除所选项目',
+      okType: 'danger',
+      onOk: () => {
+        return http.post('/tms/jobgroup/delete', { appName })
+          .then(res => {
+            this.getProjectList();
+          })
+          .catch(err => console.error(err));
+      }
+    });
   }
 
   render () {

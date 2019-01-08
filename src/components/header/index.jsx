@@ -13,6 +13,7 @@ class Header extends React.Component {
 
 	loginout () {
 		localStorage.removeItem('token');
+		localStorage.removeItem('name');
 		history.push('/login');
 	}
 
@@ -24,7 +25,7 @@ class Header extends React.Component {
 		);
 
 		return <div className="header-container">
-			<div>定时器管理系统</div>
+			<div className="pro-name">定时器管理系统</div>
 			<div style={{ cursor: 'pointer' }}>
 				<Popover placement="bottom" content={content}>
 					<Avatar style={{ backgroundColor: '#1890ff', marginRight: '10px' }} icon="user" />

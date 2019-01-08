@@ -1,10 +1,12 @@
 import React from 'react';
 import http from '../../ultils/http';
 import history from '../../ultils/history';
-import { Table, Button } from 'antd';
+import { Table, Button, Input, Icon, Modal } from 'antd';
 import { withRouter } from 'react-router-dom';
 import AddTaskModal from '../../components/addTaskModal';
 import './index.scss';
+
+const confirm = Modal.confirm;
 
 const statusList = { NORMAL: '正常执行', PAUSED: '暂停', COMPLETE: '执行完成', ERROR: '错误' };
 
@@ -12,11 +14,15 @@ class Task extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			start: 1,
+			length: 10,
 			taskList: [],
-			totalNum: 0,
+			total: 0,
 			loading: false,
 			addTask: false,
-			editTask: null
+			editTask: null,
+			jobDesc: '',
+			doSearchJobDesc: ""
 		};
 		this.columns = [
 			{ title: '项目名', dataIndex: 'jobGroup', key: 'jobGroup' },
@@ -61,13 +67,15 @@ class Task extends React.Component {
 	}
 
 	getTaskList () {
+		const { start, length, doSearchJobDesc: jobDesc } = this.state;
+		const params = { start, length, jobDesc };
 		this.setState({ loading: true });
-		http.post('/tms/job/pageList')
+		http.post('/tms/job/pageList', params)
 			.then(res => {
 				console.log(res);
 				this.setState({
 					taskList: res.data.data,
-					totalNum: res.data.recordsTotal,
+					total: res.data.recordsTotal,
 					loading: false
 				});
 			}).catch(err => {
@@ -105,22 +113,76 @@ class Task extends React.Component {
 	}
 
 	deleteTask (record) {
-		http.post('/tms/job/remove', { id: record.id })
-			.then(res => {
-				this.getTaskList();
-			}).catch(err => console.error(err));
+		confirm({
+			title: '确认删除所选任务',
+			okType: 'danger',
+			onOk: () => {
+				return http.post('/tms/job/remove', { id: record.id })
+					.then(res => {
+						this.getTaskList();
+					}).catch(err => console.error(err));
+			}
+		});
+	}
+
+	chagePagination (page, pageSize) {
+		this.setState({ start: page, length: pageSize }, () => {
+			this.getTaskList();
+		});
+	}
+
+	changeJobDesc (jobDesc) {
+		this.setState({ jobDesc });
+	}
+
+	doSearch () {
+		this.setState({
+			start: 1,
+			doSearchJobDesc: this.state.jobDesc
+		}, () => { this.getTaskList(); })
 	}
 
 	render () {
-		const { taskList, loading, addTask, editTask } = this.state;
+		const { taskList, loading, addTask, editTask, total, start, length, jobDesc } = this.state;
+		const config = {
+			dataSource: taskList,
+			columns: this.columns,
+			bordered: true,
+			loading: loading,
+			pagination: {
+				total,
+				current: start,
+				pageSize: length,
+				showSizeChanger: true,
+				showQuickJumper: true,
+				showTotal: (total) => ('总条数：' + total),
+				onChange: (page, pageSize) => { this.chagePagination(page, pageSize) },
+				onShowSizeChange: (current, size) => { this.chagePagination(1, size) }
+			}
+		};
 		return <div className="task-list-container">
-			<Button
-				type="primary"
-				style={{ marginBottom: '10px' }}
-				onClick={() => { this.setState({ addTask: true }) }}>
-				新增任务
+			<div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'flex-end' }}>
+				<Input
+					placeholder="请输入任务描述"
+					prefix={<Icon type="search" />}
+					suffix={jobDesc && <Icon type="close-circle" onClick={() => { this.changeJobDesc('') }} />}
+					value={jobDesc}
+					style={{ width: '200px' }}
+					onChange={(e) => { this.changeJobDesc(e.target.value) }}
+				/>
+				<Button
+					type="primary"
+					style={{ marginRight: '20px' }}
+					onClick={() => { this.doSearch(); }}>
+					搜索
 			 </Button>
-			<Table dataSource={taskList} columns={this.columns} bordered pagination={false} loading={loading} />
+				<Button
+					type="primary"
+					onClick={() => { this.setState({ addTask: true }) }}>
+					新增任务
+			 </Button>
+			</div>
+			<Table {...config} />
 			{addTask && <AddTaskModal closeModal={this.closeModal.bind(this)} editTask={editTask} />}
 		</div>
 	}

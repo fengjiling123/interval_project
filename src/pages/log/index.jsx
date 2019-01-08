@@ -1,8 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import http from '../../ultils/http';
-import { Table, Button, Select } from 'antd';
+import { Table, Button, Select, Input, Icon } from 'antd';
 import { withRouter } from 'react-router-dom';
+import LogDetailModal from '../../components/logDetailModal';
+import moment from 'moment';
 
 const Option = Select.Option;
 
@@ -18,14 +19,17 @@ class Log extends React.Component {
 			logList: [],
 			total: 0,
 			loading: false,
-			taskList: []
+			taskList: [],
+			logId: '',
+			showLogDetail: false
 		};
 		this.columns = [
 			{ title: '项目名称', dataIndex: 'jobGroup', key: 'jobGroup' },
-			{ title: '触发时间', dataIndex: 'triggerTime', key: 'triggerTime' },
+			{ title: '触发时间', dataIndex: 'triggerTime', key: 'triggerTime', render: (time) => (moment(time).format('YYYY-MM-DD HH:mm:ss')) },
 			{ title: '触发状态', dataIndex: 'triggerCode', key: 'triggerCode' },
 			{ title: '触发信息', dataIndex: 'triggerMsg', key: 'triggerMsg' },
-			{ title: '执行时间', dataIndex: 'handleTime', key: 'handleTime' },
+			{ title: '执行地址', dataIndex: 'executorAddress', key: 'executorAddress' },
+			{ title: '执行时间', dataIndex: 'handleTime', key: 'handleTime', render: (time) => (moment(time).format('YYYY-MM-DD HH:mm:ss')) },
 			{ title: '执行状态', dataIndex: 'handleCode', key: 'handleCode' },
 			{ title: '执行信息', dataIndex: 'handleMsg', key: 'handleMsg' },
 			{
@@ -34,7 +38,9 @@ class Log extends React.Component {
 				width: 100,
 				align: 'center',
 				render: (text, record) => (
-					<Button type="primary"
+					<Button
+						onClick={() => { this.setState({ logId: record.id, showLogDetail: true }) }}
+						type="primary"
 						size="small">
 						查看详情
 				 </Button>
@@ -44,13 +50,9 @@ class Log extends React.Component {
 	}
 
 	componentDidMount () {
-		if (this.props.location.state) {
-			this.setState({ jobId: this.props.location.state },()=>{
-				this.getLogList();
-			});
-		}else{
+		this.setState({ jobId: this.props.location.state || '' }, () => {
 			this.getLogList();
-		}
+		});
 		this.getTaskList();
 	}
 
@@ -73,7 +75,7 @@ class Log extends React.Component {
 	}
 
 	getTaskList () {
-		http.post('/tms/job/pageList')
+		http.post('/tms/job/pageList', { length: 1000000 })
 			.then(res => {
 				this.setState({
 					taskList: res.data.data
@@ -94,7 +96,7 @@ class Log extends React.Component {
 	}
 
 	render () {
-		const { logList, loading, total, start, length, logStatus, taskList, jobId } = this.state;
+		const { logList, loading, total, start, length, logStatus, taskList, jobId, logId, showLogDetail } = this.state;
 		const config = {
 			dataSource: logList,
 			columns: this.columns,
@@ -128,12 +130,9 @@ class Log extends React.Component {
 				</Select>
 			</div>
 			<Table {...config} />
+			{showLogDetail && <LogDetailModal logId={logId} closeModal={() => { this.setState({ showLogDetail: false }) }} />}
 		</div>
 	}
-}
-
-Log.propTypes = {
-
 }
 
 export default withRouter(Log);
