@@ -9,12 +9,34 @@ import {
 
 import Header from '../components/header';
 import SideMenu from '../components/side_menu';
-import Task from './task';
-import Log from './log';
-import Project from './project';
-import Users from './users';
+
+// import Task from './task';
+// import Log from './log';
+// import Project from './project';
+// import Users from './users';
+
 import './index.scss';
 import history from '../ultils/history';
+
+import AsynLoadingComponent from '../components/asynComponent';
+import Loadable from 'react-loadable';
+
+const Task = Loadable({
+	loader: () => import("./task"),
+	loading: AsynLoadingComponent
+});
+const Log = Loadable({
+	loader: () => import("./log"),
+	loading: AsynLoadingComponent
+});
+const Project = Loadable({
+	loader: () => import("./project"),
+	loading: AsynLoadingComponent
+});
+const Users = Loadable({
+	loader: () => import("./users"),
+	loading: AsynLoadingComponent
+});
 
 class App extends React.Component {
 	constructor(props) {
