@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Icon, Button } from 'antd';
+import { Menu, Button } from 'antd';
 import { withRouter } from 'react-router-dom';
 import history from '../../ultils/history';
 import menuData from '../../ultils/menu_data';
@@ -35,7 +35,7 @@ class SideMenu extends React.Component {
         {menuData.map(item => (
           this.isShow(item) &&
           <Menu.Item key={item.path} >
-            <Icon type={item.icon} />
+            <i className={item.icon} style={{ marginRight: '3px' }}></i>
             {item.name}
           </Menu.Item>
         ))}
