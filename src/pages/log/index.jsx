@@ -15,11 +15,11 @@ class Log extends React.Component {
 			length: 10,
 			logStatus: '',
 			jobId: '',
+			SearchJobId: '',
 			filterTime: '',
 			logList: [],
 			total: 0,
 			loading: false,
-			taskList: [],
 			logId: '',
 			showLogDetail: false
 		};
@@ -35,29 +35,34 @@ class Log extends React.Component {
 			{
 				title: '操作',
 				key: 'action',
+				align:'center',
 				width: 100,
-				align: 'center',
 				render: (text, record) => (
-					<Button
-						onClick={() => { this.setState({ logId: record.id, showLogDetail: true }) }}
-						type="primary"
-						size="small">
-						查看详情
-				 </Button>
+					<div>
+						<Button
+							onClick={() => { this.setState({ logId: record.id, showLogDetail: true }) }}
+							type="primary"
+							size="small">
+							详情
+					 	</Button>
+						{/* <Button style={{ marginLeft: '10px' }} size="small" onClick={() => { this.getLogDetailCat(record.id) }}>
+							文件
+						</Button> */}
+					</div>
 				),
 			}
 		];
 	}
 
 	componentDidMount () {
-		this.setState({ jobId: this.props.location.state || '' }, () => {
+		const jobId = this.props.location.state || '';
+		this.setState({ jobId, SearchJobId: jobId }, () => {
 			this.getLogList();
 		});
-		this.getTaskList();
 	}
 
 	getLogList () {
-		const { start, length, logStatus, jobId, filterTime } = this.state;
+		const { start, length, logStatus, SearchJobId: jobId, filterTime } = this.state;
 		const params = { start, length, logStatus, jobId, filterTime };
 		this.setState({ loading: true });
 		http.post('/tms/joblog/pageList', params)
@@ -74,17 +79,8 @@ class Log extends React.Component {
 			});
 	}
 
-	getTaskList () {
-		http.post('/tms/job/pageList', { length: 1000000 })
-			.then(res => {
-				this.setState({
-					taskList: res.data.data
-				});
-			}).catch(err => console.error(err));
-	}
-
 	chagePagination (page, pageSize) {
-		this.setState({ start: page, length: pageSize }, () => {
+		this.setState({ start: page, length: pageSize, jobId: this.state.SearchJobId }, () => {
 			this.getLogList();
 		});
 	}
@@ -95,8 +91,22 @@ class Log extends React.Component {
 		});
 	}
 
+	doSearch () {
+		this.setState({ SearchJobId: this.state.jobId, start: 1 }, () => {
+			this.getLogList();
+		})
+	}
+
+	getLogDetailCat (logId) {
+		http.post('/tms/joblog/logDetailCat', { logId })
+			.then(res => {
+				console.log(res);
+			})
+			.catch(err => console.error(err));
+	}
+
 	render () {
-		const { logList, loading, total, start, length, logStatus, taskList, jobId, logId, showLogDetail } = this.state;
+		const { logList, loading, total, start, length, logStatus, jobId, logId, showLogDetail } = this.state;
 		const config = {
 			dataSource: logList,
 			columns: this.columns,
@@ -115,19 +125,31 @@ class Log extends React.Component {
 		};
 		const status = { 1: '成功', 2: '失败', 3: '未执行' }
 		return <div>
-			<div style={{ marginBottom: '10px' }} >
-				<span>日志状态：</span>
-				<Select value={logStatus} style={{ width: 150 }} onChange={(logStatus) => { this.changeValue('logStatus', logStatus) }}>
-					<Option value="">全部</Option>
-					<Option value="1">成功</Option>
-					<Option value="2">失败</Option>
-					<Option value="3">未执行</Option>
-				</Select>
-				<span style={{ marginLeft: '30px' }}>任务：</span>
-				<Select value={jobId} style={{ width: 150 }} onChange={(jobId) => { this.changeValue('jobId', jobId) }}>
-					<Option value="">全部</Option>
-					{taskList && taskList.map(item => (<Option value={item.id} key={item.id}>{item.jobDesc}</Option>))}
-				</Select>
+			<div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }} >
+				<div>
+					<span>日志状态：</span>
+					<Select value={logStatus} style={{ width: 150 }} onChange={(logStatus) => { this.changeValue('logStatus', logStatus) }}>
+						<Option value="">全部</Option>
+						<Option value="1">成功</Option>
+						<Option value="2">失败</Option>
+						<Option value="3">未执行</Option>
+					</Select>
+				</div>
+				<div>
+					<Input
+						placeholder="请输入任务ID"
+						prefix={<Icon type="search" />}
+						suffix={jobId && <Icon type="close-circle" onClick={() => { this.setState({ jobId: '' }) }} />}
+						value={jobId}
+						style={{ width: '200px' }}
+						onChange={(e) => { this.setState({ jobId: e.target.value }) }}
+					/>
+					<Button
+						type="primary"
+						onClick={() => { this.doSearch(); }}>
+						搜索
+			    </Button>
+				</div>
 			</div>
 			<Table {...config} />
 			{showLogDetail && <LogDetailModal logId={logId} closeModal={() => { this.setState({ showLogDetail: false }) }} />}

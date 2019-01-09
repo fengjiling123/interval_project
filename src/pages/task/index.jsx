@@ -4,6 +4,7 @@ import history from '../../ultils/history';
 import { Table, Button, Input, Icon, Modal } from 'antd';
 import { withRouter } from 'react-router-dom';
 import AddTaskModal from '../../components/addTaskModal';
+import TaskExecModal from '../../components/taskExecModal';
 import './index.scss';
 
 const confirm = Modal.confirm;
@@ -22,9 +23,11 @@ class Task extends React.Component {
 			addTask: false,
 			editTask: null,
 			jobDesc: '',
-			doSearchJobDesc: ""
+			doSearchJobDesc: "",
+			showExecModal: false
 		};
 		this.columns = [
+			{ title: 'ID', dataIndex: 'id', key: 'id', width: 60, align: 'center' },
 			{ title: '项目名', dataIndex: 'jobGroup', key: 'jobGroup' },
 			{ title: 'cron表达式', dataIndex: 'jobCron', key: 'jobCron' },
 			{ title: '描述', dataIndex: 'jobDesc', key: 'jobDesc' },
@@ -38,6 +41,7 @@ class Task extends React.Component {
 				width: 150,
 				render: (text, record) => (
 					<div className="action-container">
+						<Button size="small" type="primary" onClick={() => { this.setState({ editTask: record, showExecModal: true }) }}>统计</Button>
 						{record.jobStatus !== 'NORMAL' &&
 							<Button type="primary"
 								size="small"
@@ -53,8 +57,9 @@ class Task extends React.Component {
 						}}>
 							日志
 						 </Button>
+
 						{record.jobStatus === 'NORMAL' && <Button size="small" onClick={this.pauseTask.bind(this, record)}>暂停</Button>}
-						{record.jobStatus === 'PAUSED' && <Button size="small" onClick={this.resumeTask.bind(this, record)}>启动</Button>}
+						{record.jobStatus !== 'NORMAL' && <Button size="small" onClick={this.resumeTask.bind(this, record)}>启动</Button>}
 						{record.jobStatus !== 'NORMAL' && <Button type="danger" size="small" onClick={this.deleteTask.bind(this, record)}>删除</Button>}
 					</div>
 				),
@@ -126,7 +131,7 @@ class Task extends React.Component {
 	}
 
 	chagePagination (page, pageSize) {
-		this.setState({ start: page, length: pageSize }, () => {
+		this.setState({ start: page, length: pageSize, jobDesc: this.state.doSearchJobDesc }, () => {
 			this.getTaskList();
 		});
 	}
@@ -143,7 +148,8 @@ class Task extends React.Component {
 	}
 
 	render () {
-		const { taskList, loading, addTask, editTask, total, start, length, jobDesc } = this.state;
+		const { taskList, loading, addTask, editTask, total, start, length, jobDesc,
+			showExecModal } = this.state;
 		const config = {
 			dataSource: taskList,
 			columns: this.columns,
@@ -184,6 +190,7 @@ class Task extends React.Component {
 			</div>
 			<Table {...config} />
 			{addTask && <AddTaskModal closeModal={this.closeModal.bind(this)} editTask={editTask} />}
+			{showExecModal && <TaskExecModal closeModal={() => { this.setState({ showExecModal: false }) }} editTask={editTask} />}
 		</div>
 	}
 }
