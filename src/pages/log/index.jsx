@@ -3,6 +3,7 @@ import http from '../../ultils/http';
 import { Table, Button, Select, Input, Icon } from 'antd';
 import { withRouter } from 'react-router-dom';
 import LogDetailModal from '../../components/logDetailModal';
+import LogCatModal from '../../components/logCatModal';
 import moment from 'moment';
 
 const Option = Select.Option;
@@ -21,7 +22,9 @@ class Log extends React.Component {
 			total: 0,
 			loading: false,
 			logId: '',
-			showLogDetail: false
+			showLogDetail: false,
+			showLogCat: false,
+			catLog: null
 		};
 		this.columns = [
 			{ title: '项目名称', dataIndex: 'jobGroup', key: 'jobGroup' },
@@ -35,7 +38,7 @@ class Log extends React.Component {
 			{
 				title: '操作',
 				key: 'action',
-				align:'center',
+				align: 'center',
 				width: 100,
 				render: (text, record) => (
 					<div>
@@ -45,9 +48,11 @@ class Log extends React.Component {
 							size="small">
 							详情
 					 	</Button>
-						{/* <Button style={{ marginLeft: '10px' }} size="small" onClick={() => { this.getLogDetailCat(record.id) }}>
-							文件
-						</Button> */}
+						{record.handleCode === 500 &&
+							<Button style={{ marginTop: '10px' }} size="small" onClick={() => { this.setState({ showLogCat: true, catLog: record }) }}>
+								文件
+						</Button>
+						}
 					</div>
 				),
 			}
@@ -97,16 +102,9 @@ class Log extends React.Component {
 		})
 	}
 
-	getLogDetailCat (logId) {
-		http.post('/tms/joblog/logDetailCat', { logId })
-			.then(res => {
-				console.log(res);
-			})
-			.catch(err => console.error(err));
-	}
-
 	render () {
-		const { logList, loading, total, start, length, logStatus, jobId, logId, showLogDetail } = this.state;
+		const { logList, loading, total, start, length, logStatus, jobId, logId, showLogDetail,
+			showLogCat, catLog } = this.state;
 		const config = {
 			dataSource: logList,
 			columns: this.columns,
@@ -153,6 +151,7 @@ class Log extends React.Component {
 			</div>
 			<Table {...config} />
 			{showLogDetail && <LogDetailModal logId={logId} closeModal={() => { this.setState({ showLogDetail: false }) }} />}
+			{showLogCat && <LogCatModal catLog={catLog} closeModal={() => { this.setState({ showLogCat: false }) }} />}
 		</div>
 	}
 }
