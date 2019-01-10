@@ -7,7 +7,6 @@ class LogCat extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      detail: {},
       loading: true,
       logContent: ''
     }
